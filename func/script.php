@@ -7,10 +7,16 @@ require_once "Core.php";
 require_once __DIR__. "/../designer/Designer.php";
 
 $core = new Core();
-$mainMenuItems = $core->getMainFolders(true);
 $display = new Designer();
+////////////////////////////////////////////////////////////////////
+$mainMenuItems = $core->getMainFolders();
+$navMenuItems = $core->getNavFolders();
+////////////////////////////////////////////////////////////////////
 $head = $display->getHeadContents();
 $mainMenu = $display->getMainMenuContents($mainMenuItems);
+$navMenu = $display->getNavContents($navMenuItems);
+$center = $display->getCenterContents();
+////////////////////////////////////////////////////////////////////
 ob_start();
 foreach ($head as $row) {
     echo $row;
@@ -18,7 +24,12 @@ foreach ($head as $row) {
 foreach ($mainMenu as $row) {
     echo $row;
 }
-
+foreach ($navMenu as $row) {
+    echo $row;
+}
+foreach ($center as $row) {
+    echo $row;
+}
 //var_dump($html);
 //<!--    <html>-->
 //<!--    <head>-->

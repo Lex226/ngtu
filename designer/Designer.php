@@ -21,8 +21,18 @@ class Designer
     }
 
     /**
+     * Возвращает собранный head в виде массива.
+     *
+     * @return array
+     */
+    public function getHeadContents()
+    {
+        $head = $this->parse($this->html, 'head');
+        return $head;
+    }
+
+    /**
      * Получаем собранную хтмл для главного меню. Передаем в нее массив с названиями папок.
-     * todo сделать ключи русскими названиями и подменять
      *
      * @param array $mainMenuItems
      * @return array
@@ -36,7 +46,7 @@ class Designer
             $newItem = $this->switchPlaceholder($itemHtml, $item['rusName']);
             foreach ($newItem as &$row) {
                 if (preg_match('/href/', $row)) {
-                    $row = str_replace('href', "href=\"/".$item['link']."\"", $row);
+                    $row = str_replace('href', "href=\"".$item['link']."\"", $row);
                 }
             }
             $newItems[] = $newItem;
@@ -44,6 +54,33 @@ class Designer
         $mainMenuHtml = $this->replaceBlockWithPlaceholder($mainMenuHtml, 'mainmenuitem');
         $mainMenuHtml = $this->switchPlaceholder($mainMenuHtml, $newItems);
         return $mainMenuHtml;
+    }
+
+    public function getNavContents($navItems)
+    {
+        $navMenuHtml = $this->parse($this->html, 'nav');
+        $navMenuItemHtml = $this->parse($this->html, 'navitem');
+        $newItems = [];
+        foreach ($navItems as $item) {
+            $newItem = $this->switchPlaceholder($navMenuItemHtml, $item['title']);
+            foreach ($newItem as &$row) {
+                if (preg_match('/href/', $row)) {
+                    $row = str_replace('href', "href=\"".$item['link']."\"", $row);
+                }
+            }
+            $newItems[] = $newItem;
+        }
+        $navMenuHtml = $this->replaceBlockWithPlaceholder($navMenuHtml, 'navitem');
+        $navMenuHtml = $this->switchPlaceholder($navMenuHtml, $newItems);
+
+//        var_dump($navMenuHtml);
+        return $navMenuHtml;
+    }
+
+    public function getCenterContents()
+    {
+        $centerHtml = $this->parse($this->html, 'center');
+        return $centerHtml;
     }
 
     /**
@@ -130,17 +167,6 @@ class Designer
             }
         }
         return $result;
-    }
-
-    /**
-     * Возвращает собранный head в виде массива.
-     *
-     * @return array
-     */
-    public function getHeadContents()
-    {
-        $head = $this->parse($this->html, 'head');
-        return $head;
     }
 
     /**
