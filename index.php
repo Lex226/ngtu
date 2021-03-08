@@ -1,3 +1,3 @@
 <?php
 
-require_once "./func/script.php";
+require_once "./news/func/script.php";
