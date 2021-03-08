@@ -12,14 +12,19 @@ $display = new Designer();
 $mainMenuItems = $core->getMainFolders();
 $navMenuItems = $core->getNavFolders();
 $currentMenuItems = $core->getCurrentFolders();
+$contentItem = $core->getContent();
 ////////////////////////////////////////////////////////////////////
+$logoItem = $display->getLogoContents($core->httpUri);
 $head = $display->getHeadContents();
 $mainMenu = $display->getMainMenuContents($mainMenuItems);
 $navMenu = $display->getNavContents($navMenuItems);
-$center = $display->getCenterContents($currentMenuItems);
+$center = $display->getCenterContents($currentMenuItems, $contentItem);
 ////////////////////////////////////////////////////////////////////
 ob_start();
 foreach ($head as $row) {
+    echo $row;
+}
+foreach ($logoItem as $row) {
     echo $row;
 }
 foreach ($mainMenu as $row) {
@@ -29,8 +34,10 @@ foreach ($navMenu as $row) {
     echo $row;
 }
 foreach ($center as $row) {
+//    var_dump($row);
     echo $row;
 }
+//var_dump($center);
 //var_dump($html);
 //<!--    <html>-->
 //<!--    <head>-->
