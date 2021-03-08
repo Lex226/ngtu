@@ -1,23 +1,21 @@
 <?php
 
-ini_set("xdebug.var_display_max_children", -1);
-ini_set("xdebug.var_display_max_data", -1);
-ini_set("xdebug.var_display_max_depth", -1);
 require_once "Core.php";
-require_once __DIR__. "/../designer/Designer.php";
+require_once __DIR__ . "/../designer/Designer.php";
 
 $core = new Core();
 $display = new Designer();
 ////////////////////////////////////////////////////////////////////
 $mainMenuItems = $core->getMainFolders();
 $navMenuItems = $core->getNavFolders();
+$pagename = $core->getCurrentPageRusName();
 $currentMenuItems = $core->getCurrentFolders();
 $contentItem = $core->getContent();
 ////////////////////////////////////////////////////////////////////
 $logoItem = $display->getLogoContents($core->httpUri);
-$head = $display->getHeadContents();
+$head = $display->getHeadContents($pagename);
 $mainMenu = $display->getMainMenuContents($mainMenuItems);
-$navMenu = $display->getNavContents($navMenuItems);
+$navMenu = $display->getNavContents($navMenuItems, $pagename);
 $center = $display->getCenterContents($currentMenuItems, $contentItem);
 ////////////////////////////////////////////////////////////////////
 ob_start();

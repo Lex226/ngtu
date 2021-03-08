@@ -1,9 +1,5 @@
 <?php
 
-ini_set("xdebug.var_display_max_children", -1);
-ini_set("xdebug.var_display_max_data", -1);
-ini_set("xdebug.var_display_max_depth", -1);
-
 class Designer
 {
     protected $html = [];
@@ -12,7 +8,7 @@ class Designer
     {
         // получаем хтмльку для парсинга, если там будет не хтмлька то наверное наступит смерть
         // парсинг точно полетит
-        if ($fh = fopen(__DIR__ . '\main.html', 'r')) {
+        if ($fh = fopen(__DIR__ . DIRECTORY_SEPARATOR . 'main.html', 'r')) {
             while (!feof($fh)) {
                 $this->html[] = fgets($fh);
             }
@@ -57,7 +53,7 @@ class Designer
     }
 
     /**
-     * Получаем собранную хтмл для главного меню. Передаем в нее массив с названиями папок.
+     * Возвращает собранный хтмл для главного меню. Передает в нее массив с названиями папок.
      *
      * @param array $mainMenuItems
      * @return array
@@ -68,7 +64,7 @@ class Designer
         $itemHtml = $this->parse($mainMenuHtml, "mainmenuitem");
         $newItems = [];
         foreach ($mainMenuItems as $item) {
-            $newItem = $this->switchPlaceholder($itemHtml, $item['rusName']);
+            $newItem = $this->switchPlaceholder($itemHtml, $item['title']);
             foreach ($newItem as &$row) {
                 if (preg_match('/href/', $row)) {
                     $row = str_replace('href', "href=\"".$item['link']."\"", $row);
@@ -80,6 +76,13 @@ class Designer
         return $mainMenuHtml;
     }
 
+    /**
+     * Собирает навигационное меню.
+     *
+     * @param $navItems
+     * @param $pagename
+     * @return array
+     */
     public function getNavContents($navItems, $pagename)
     {
         $navMenuHtml = $this->parse($this->html, 'nav');
@@ -101,6 +104,13 @@ class Designer
         return $navMenuHtml;
     }
 
+    /**
+     * Собирает центральную часть страницы с текущим меню и контентом.
+     *
+     * @param $menuItems
+     * @param array $content
+     * @return array
+     */
     public function getCenterContents($menuItems, $content = [])
     {
         $centerHtml = $this->parse($this->html, 'center');
@@ -108,7 +118,7 @@ class Designer
         $menuItemBlock = $this->parse($menuBlock, 'currentitem');
         $items = [];
         foreach ($menuItems as $item) {
-            $temp = $this->switchPlaceholder($menuItemBlock, $item['rusName']);
+            $temp = $this->switchPlaceholder($menuItemBlock, $item['title']);
             foreach ($temp as &$row) {
                 if (preg_match('/href/', $row)) {
                     $row = str_replace('href', "href=\"".$item['link']."\"", $row);
@@ -250,33 +260,10 @@ class Designer
         $range = range($ids[0], $ids[1]);
         array_shift($range);
         array_pop($range);
-
-//        var_dump($range);
         $result = [];
         foreach ($range as $id) {
             $result[] = $html[$id];
         }
         return $result;
     }
-
-    /**
-     * Вспомогательная функция для отображения массивов.
-     *
-     * @param array $array
-     */
-    public function showArray($array = [])
-    {
-        echo "<pre>";
-        foreach ($array as $item) {
-            if (is_array($item)) {
-                foreach ($item as $row) {
-                    print_r(htmlentities($row));
-                }
-            } else {
-                print_r(htmlentities($item));
-            }
-        }
-        echo "</pre>";
-    }
-
 }
