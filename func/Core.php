@@ -12,7 +12,7 @@ class Core
 
     public function __construct()
     {
-        $this->root = __DIR__ . '\..\\';
+        $this->root = __DIR__ . '/..';
         $this->cwd = getcwd();
         $this->folderCfg = (include $this->cfgPath . 'folders.php');
         $this->httpUri = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . parse_url($_SERVER['HTTP_HOST'])['path'];
@@ -21,19 +21,15 @@ class Core
 
     public function getMainFolders()
     {
-        $folders = array_diff(scandir($this->root), array('..', '.'));
-        foreach ($folders as $k => $folder) {
-            if (!is_dir($this->root."/".$folder) || in_array($folder, $this->folderCfg['hide'])) {
-                unset($folders[$k]);
-            }
-        }
+        $folders = scandir($this->root);
+        $folders = $this->clearFolders($folders);
         foreach ($folders as $k => &$folder) {
             $checkFolder = scandir("$this->root/$folder");
             if (in_array($this->rusName, $checkFolder)) {
                 $folderRusName = file_get_contents("$this->root/$folder/$this->rusName");
                 $folder = [
                     'rusName' => $folderRusName,
-                    'link' => $this->httpUri."/".$folder
+                    'link' => $this->httpUri . "/" . $folder
                 ];
             }
         }
@@ -42,11 +38,11 @@ class Core
 
     public function getNavFolders()
     {
-        $itemsRaw = array_filter(explode('/',$this->requestUri));
+        $itemsRaw = array_filter(explode('/', $this->requestUri));
         $items = [
             [
                 'title' => 'Главная',
-                'link' => $this->httpUri."/",
+                'link' => $this->httpUri . "/",
             ]
         ];
         $link = [];
@@ -54,7 +50,7 @@ class Core
             $link[] = $item;
             $items[] = [
                 'title' => $item,
-                'link' => $this->httpUri."/".implode("/", $link),
+                'link' => $this->httpUri . "/" . implode("/", $link),
             ];
         }
         return $items;
@@ -62,6 +58,31 @@ class Core
 
     public function getCurrentFolders()
     {
+        $folders = scandir($this->root . $this->requestUri);
+        $folders = $this->clearFolders($folders, true);
+        foreach ($folders as &$folder) {
+            $folderRusName = file_get_contents($this->root . $this->requestUri . $folder . '/' . $this->rusName);
+//            var_dump($this->root . $this->requestUri . $folder . '/' . $this->rusName);
+//            var_dump($folderRusName);
+            $folder = [
+                'rusName' => $folderRusName,
+                'link' => $this->requestUri.$folder,
+            ];
+//            var_dump($folder);
+//            var_dump(scandir($this->root . $this->requestUri . $folder));
+        }
+        return $folders;
+    }
 
+    public function clearFolders($folders, $request = false)
+    {
+        foreach ($folders as $k => $folder) {
+            if (!$request && !is_dir($this->root . '/' . $folder) || in_array($folder, $this->folderCfg['hide'])) {
+                unset($folders[$k]);
+            } elseif ($request && !is_dir($this->root . $this->requestUri . $folder) || in_array($folder, $this->folderCfg['hide'])) {
+                unset($folders[$k]);
+            }
+        }
+        return $folders;
     }
 }
